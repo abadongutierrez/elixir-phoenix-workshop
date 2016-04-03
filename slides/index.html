@@ -48,6 +48,63 @@
                     </script>
                 </section>
 
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Agenda
+
+                        * 
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Phoenix
+
+                        * Phoenix is built on Elixir
+                        * Simply way of how Phoenix works:
+
+```
+connection |> phoenix
+```
+                        * In Phoenix, that `connection` contains all data from user request.
+                        * Each layer in Phoenix will change a little bit that `connection`.
+                        * When Phoenix is done, that `connection` will have the response in it.
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Layers of Phoenix
+
+```
+connection
+    |> endpoint
+    |> router
+    |> pipelines
+    |> controller
+```
+
+                        * the `router` directs the request into the appropiate `controller`.
+                        * You might have a pipeline for browser requests, and another for JSON requests.
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Controllers
+
+```
+connection
+    |> controller
+    |> common_services
+    |> action
+```
+
+                        * In Phoenix, those common services are implemented with `Plug`.
+                        * You might have a pipeline for browser requests, and another for JSON requests.
+                    </script>
+                </section>
+
                 <section>
                     <h2>Hello There</h2>
                     <p>
