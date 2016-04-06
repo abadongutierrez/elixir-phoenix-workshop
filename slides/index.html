@@ -15,7 +15,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
 
         <link rel="stylesheet" href="css/reveal.css">
-        <link rel="stylesheet" href="css/theme/simple.css" id="theme">
+        <link rel="stylesheet" href="css/theme/moon.css" id="theme">
 
         <!-- Code syntax highlighting -->
         <link rel="stylesheet" href="lib/css/zenburn.css">
@@ -42,9 +42,9 @@
             <div class="slides">
                 <section data-markdown>
                     <script type="text/template">
-                        # Elixir and Phoenix Workshop
+                        # Phoenix Framework Workshop
 
-                        Created by Rafael Gutierrez / @abaddon_gtz
+                        Created by Rafael Gutierrez / @abaddon_gtz / rgutierrez@nearsoft.com
                     </script>
                 </section>
 
@@ -52,29 +52,44 @@
                     <script type="text/template">
                         ## Agenda
 
-                        * 
+                        * Brief intro to Phoenix
+                        * Lab01: Hello World!
+                        * Lab02: Simple Blog
+                        * Why Phoenix?
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Elixir & Phoenix
+
+                        * Phoenix is built on Elixir
+                        * Elixir is 'fast' (see [benchmark](https://gist.github.com/omnibs/e5e72b31e6bd25caf39a))
+                            * Not the 'fastest'
+                        * Concurrent
+                        * Beatiful code
+                        * Simple Abstractions
+                        * Reliable
                     </script>
                 </section>
 
                 <section data-markdown>
                     <script type="text/template">
                         ## Phoenix
-
-                        * Phoenix is built on Elixir
                         * Simply way of how Phoenix works:
-
 ```
 connection |> phoenix
 ```
-                        * In Phoenix, that `connection` contains all data from user request.
-                        * Each layer in Phoenix will change a little bit that `connection`.
+                        * `connection` is a map with a known set of fields.
+                        * `connection` contains all data from user request.
                         * When Phoenix is done, that `connection` will have the response in it.
+                        * Each layer in Phoenix will change a little bit that `connection`.
                     </script>
                 </section>
 
                 <section data-markdown>
                     <script type="text/template">
-                        ## Layers of Phoenix
+                        ## The Layers of Phoenix
 
 ```
 connection
@@ -83,9 +98,11 @@ connection
     |> pipelines
     |> controller
 ```
-
-                        * the `router` directs the request into the appropiate `controller`.
-                        * You might have a pipeline for browser requests, and another for JSON requests.
+                        * Each request comes in throught an endpoint.
+                        * the `router` directs the request into the appropiate `controller`, after passing it
+                        through a series of `pipelines`.
+                        * A `pipeline` group functions together to handle common tasks.
+                        * You might have a `pipeline` for browser requests, and another for JSON requests.
                     </script>
                 </section>
 
@@ -93,15 +110,86 @@ connection
                     <script type="text/template">
                         ## Controllers
 
-```
+```Elixir
 connection
     |> controller
     |> common_services
-    |> action
+    |> action # <- your code!
 ```
+                        * The `connection` flows into a `controller` and calls common services.
+                        * Those common services are implemented with `Plug`.
+                        * Actions will do different things:
+                            * access other web sites
+                            * authenticate a user
+                            * access databases
+                            * etc.
+                    </script>
+                </section>
 
-                        * In Phoenix, those common services are implemented with `Plug`.
-                        * You might have a pipeline for browser requests, and another for JSON requests.
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab00: Hello World! (1)
+
+                        * Run:
+
+```
+$ mix phoenix.new hello_phoenix  
+...
+Fetch and install dependencies? [Yn] Y
+```
+                        * Then:
+
+```
+$ cd hello_phoenix
+$ mix phoenix.server
+...
+Shall I install rebar? [Yn] Y
+```
+                        * Go to http://localhost:4000
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab00: Hello World! (2)
+
+                        * Create a file `web/controllers/hello_controller.ex` with content:
+
+```
+defmodule HelloPhoenix.HelloController do
+  use HelloPhoenix.Web, :controller
+
+  def index(conn, _params) do
+    text conn, "Hello Phoenix!"
+  end
+end
+```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab00: Hello World! (3)
+
+                        * Edit to `web/router.ex` and add:
+
+```
+  scope "/", HelloPhoenix do
+    pipe_through :browser # Use the default browser stack
+
+    get "/", PageController, :index
+    get "/hello", HelloController, :index
+  end
+```
+                        * Go to http://localhost:4000/hello
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Why Phoenix?
+
+                        * 
                     </script>
                 </section>
 
