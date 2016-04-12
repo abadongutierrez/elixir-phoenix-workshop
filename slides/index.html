@@ -52,10 +52,16 @@
                     <script type="text/template">
                         ## Agenda
 
-                        * Brief intro to Phoenix
-                        * Lab01: Hello World!
-                        * Lab02: Simple Blog
-                        * Why Phoenix?
+                        * Brief Introduction
+                        * Lab00: Hello World!
+                        * Router, Path Helpers, Pipelines
+                        * Plug
+                        * Controller, View, Template
+                        * Lab01: End to End
+                        * Flash Messages
+                        * Plug
+                        * Lab02: Plug
+                        * Lab03: Blog Phoenix
                     </script>
                 </section>
 
@@ -108,7 +114,7 @@ connection
 
                 <section data-markdown>
                     <script type="text/template">
-                        ## Controllers
+                        ## Controllers flow
 
 ```Elixir
 connection
@@ -118,6 +124,7 @@ connection
 ```
                         * The `connection` flows into a `controller` and calls common services.
                         * Those common services are implemented with `Plug`.
+                            * Plug is a specification for composable modules in between web applications. 
                         * Actions will do different things:
                             * access other web sites
                             * authenticate a user
@@ -181,343 +188,487 @@ end
     get "/hello", HelloController, :index
   end
 ```
-                        * Go to http://localhost:4000/hello
+                        * Go to http://localhost:4000/hello_phoenix
                     </script>
                 </section>
 
                 <section data-markdown>
                     <script type="text/template">
-                        ## Why Phoenix?
+                        ## Router (1)
 
-                        * 
+                        * They match HTTP requests to controller actions.
+                        * Define a series of pipeline transformations for scoping middleware to sets of routes.
+                        * Phoenix generates the router file in `/web/router.ex`
+                        * You define a new route inside a `scope` block:
+```
+scope "/", HelloPhoenix do
+    pipe_through :browser # Use the default browser stack
+
+    get "/", PageController, :index
+    get "/hello", HelloController, :index
+end
+```
+                        * &lt;http method&gt; &lt;path&gt;, &lt;controller module&gt;, &lt;controller method&gt;
                     </script>
-                </section>
-
-                <section>
-                    <h2>Hello There</h2>
-                    <p>
-                        reveal.js enables you to create beautiful interactive slide decks using HTML. This presentation will show you examples of what it can do.
-                    </p>
-                </section>
-
-                <!-- Example of nested vertical slides -->
-                <section>
-                    <section>
-                        <h2>Vertical Slides</h2>
-                        <p>Slides can be nested inside of each other.</p>
-                        <p>Use the <em>Space</em> key to navigate through all slides.</p>
-                        <br>
-                        <a href="#" class="navigate-down">
-                            <img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-                        </a>
-                    </section>
-                    <section>
-                        <h2>Basement Level 1</h2>
-                        <p>Nested slides are useful for adding additional detail underneath a high level horizontal slide.</p>
-                    </section>
-                    <section>
-                        <h2>Basement Level 2</h2>
-                        <p>That's it, time to go back up.</p>
-                        <br>
-                        <a href="#/2">
-                            <img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Up arrow" style="transform: rotate(180deg); -webkit-transform: rotate(180deg);">
-                        </a>
-                    </section>
-                </section>
-
-                <section>
-                    <h2>Slides</h2>
-                    <p>
-                        Not a coder? Not a problem. There's a fully-featured visual editor for authoring these, try it out at <a href="http://slides.com" target="_blank">http://slides.com</a>.
-                    </p>
-                </section>
-
-                <section>
-                    <h2>Point of View</h2>
-                    <p>
-                        Press <strong>ESC</strong> to enter the slide overview.
-                    </p>
-                    <p>
-                        Hold down alt and click on any element to zoom in on it using <a href="http://lab.hakim.se/zoom-js">zoom.js</a>. Alt + click anywhere to zoom back out.
-                    </p>
-                </section>
-
-                <section>
-                    <h2>Touch Optimized</h2>
-                    <p>
-                        Presentations look great on touch devices, like mobile phones and tablets. Simply swipe through your slides.
-                    </p>
                 </section>
 
                 <section data-markdown>
                     <script type="text/template">
-                        ## Markdown support
+                        ## Router (2)
 
-                        Write content using inline or external Markdown.
-                        Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
-
-                        ```
-                        <section data-markdown>
-                          ## Markdown support
-
-                          Write content using inline or external Markdown.
-                          Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
-                        </section>
-                        ```
+                        * `get` is a macro that expands to a clause `match/3`. There are other macros for HTTP verbs like: `post`, `delete`, etc.
+                        * `resource` is another macro that expands to a eight clauses of `match/3`. It helps to define routes for REST resources.
+```
+    resource "/users", UserController
+```
+                        * You can limit what actions do you want in your resources with `only` and `except`:
+```
+    resources "/posts", PostController, only: [:index, :show]
+    resources "/comments", CommentController, except: [:delete]
+```
+                        * Use `$ mix phoenix.routes` to investigate routes in an application
                     </script>
                 </section>
 
-                <section>
-                    <section id="fragments">
-                        <h2>Fragments</h2>
-                        <p>Hit the next arrow...</p>
-                        <p class="fragment">... to step through ...</p>
-                        <p><span class="fragment">... a</span> <span class="fragment">fragmented</span> <span class="fragment">slide.</span></p>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Router - Path Helpers (1)
 
-                        <aside class="notes">
-                            This slide has fragments which are also stepped through in the notes window.
-                        </aside>
-                    </section>
-                    <section>
-                        <h2>Fragment Styles</h2>
-                        <p>There's different types of fragments, like:</p>
-                        <p class="fragment grow">grow</p>
-                        <p class="fragment shrink">shrink</p>
-                        <p class="fragment fade-out">fade-out</p>
-                        <p class="fragment current-visible">current-visible</p>
-                        <p class="fragment highlight-red">highlight-red</p>
-                        <p class="fragment highlight-blue">highlight-blue</p>
-                    </section>
+                        * When you run `$ mix phoenix.routes` notice the first text in each line. That is the Path Helper.
+                        * Path helpers are functions which are dynamically defined on the `Router.Helpers` module for an individual application.
+                        * Their names are derived from the name of the controller used in the route definition.
+                        * Example: `HelloPhoenix.PageController` will generate `page_path` path helper.
+                        * A path helper is what you must use to generate URL in your views.
+                    </script>
                 </section>
 
-                <section id="transitions">
-                    <h2>Transition Styles</h2>
-                    <p>
-                        You can select from different transitions, like: <br>
-                        <a href="?transition=none#/transitions">None</a> -
-                        <a href="?transition=fade#/transitions">Fade</a> -
-                        <a href="?transition=slide#/transitions">Slide</a> -
-                        <a href="?transition=convex#/transitions">Convex</a> -
-                        <a href="?transition=concave#/transitions">Concave</a> -
-                        <a href="?transition=zoom#/transitions">Zoom</a>
-                    </p>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Router - Path Helpers (2)
+
+                        * Run `$ $ iex -S mix`
+```
+iex> HelloPhoenix.Router.Helpers.page_path(HelloPhoenix.Endpoint, :index)
+"/"
+iex> HelloPhoenix.Router.Helpers.hello_path(HelloPhoenix.Endpoint, :index)
+"/hello"
+iex> HelloPhoenix.Router.Helpers.hello_path(HelloPhoenix.Endpoint, :index, arg1: 1, arg2: 2)
+"/hello?arg1=1&arg2=2"
+```
+                    </script>
                 </section>
 
-                <section id="themes">
-                    <h2>Themes</h2>
-                    <p>
-                        reveal.js comes with a few themes built in: <br>
-                        <!-- Hacks to swap themes after the page has loaded. Not flexible and only intended for the reveal.js demo deck. -->
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/black.css'); return false;">Black (default)</a> -
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/white.css'); return false;">White</a> -
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/league.css'); return false;">League</a> -
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/sky.css'); return false;">Sky</a> -
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/beige.css'); return false;">Beige</a> -
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/simple.css'); return false;">Simple</a> <br>
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/serif.css'); return false;">Serif</a> -
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/blood.css'); return false;">Blood</a> -
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/night.css'); return false;">Night</a> -
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/moon.css'); return false;">Moon</a> -
-                        <a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/solarized.css'); return false;">Solarized</a>
-                    </p>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Router - Pipelines (1)
+
+                        * Pipelines are simply plugs stacked up together in a specific order and given a name.
+                        * To customize behaviors and transformations related to the handling of requests.
+                        * Notice that Phoenix generates `:browser` and `:api` pipelines.
+                    </script>
                 </section>
 
-                <section>
-                    <section data-background="#dddddd">
-                        <h2>Slide Backgrounds</h2>
-                        <p>
-                            Set <code>data-background="#dddddd"</code> on a slide to change the background color. All CSS color formats are supported.
-                        </p>
-                        <a href="#" class="navigate-down">
-                            <img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-                        </a>
-                    </section>
-                    <section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/image-placeholder.png">
-                        <h2>Image Backgrounds</h2>
-                        <pre><code>&lt;section data-background="image.png"&gt;</code></pre>
-                    </section>
-                    <section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/image-placeholder.png" data-background-repeat="repeat" data-background-size="100px">
-                        <h2>Tiled Backgrounds</h2>
-                        <pre><code style="word-wrap: break-word;">&lt;section data-background="image.png" data-background-repeat="repeat" data-background-size="100px"&gt;</code></pre>
-                    </section>
-                    <section data-background-video="https://s3.amazonaws.com/static.slid.es/site/homepage/v1/homepage-video-editor.mp4,https://s3.amazonaws.com/static.slid.es/site/homepage/v1/homepage-video-editor.webm" data-background-color="#000000">
-                        <div style="background-color: rgba(0, 0, 0, 0.9); color: #fff; padding: 20px;">
-                            <h2>Video Backgrounds</h2>
-                            <pre><code style="word-wrap: break-word;">&lt;section data-background-video="video.mp4,video.webm"&gt;</code></pre>
-                        </div>
-                    </section>
-                    <section data-background="http://i.giphy.com/90F8aUepslB84.gif">
-                        <h2>... and GIFs!</h2>
-                    </section>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Router - Pipelines (2)
+
+                        * When you see this:
+```
+    plug :one
+    plug Two
+    plug :three, some: :option
+```
+                        * It expands to:
+```
+case one(conn, []) do
+    %{halted: true} = conn -> conn
+    conn ->
+        case Two.call(conn, Two.init([])) do
+            %{halted: true} = conn -> conn
+            conn ->
+                case three(conn, some: :option) do
+                    %{halted: true} = conn -> conn
+                    conn -> conn
+                end
+        end
+end
+```
+                    </script>
                 </section>
 
-                <section data-transition="slide" data-background="#4d7e65" data-background-transition="zoom">
-                    <h2>Background Transitions</h2>
-                    <p>
-                        Different background transitions are available via the backgroundTransition option. This one's called "zoom".
-                    </p>
-                    <pre><code>Reveal.configure({ backgroundTransition: 'zoom' })</code></pre>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Controllers (1)
+
+                        * Controller's functions - called actions - are invoked from the router in response to HTTP requests.
+                        * The actions gather all the necessary data and perform all the necessary steps before invoking the view layer to render a template or returning a JSON response.
+                        * Controller actions are just functions.
+                        * Each action takes two parameters: the first one is alsways the `connection` and the second is the parameters for the action.
+                    </script>
                 </section>
 
-                <section data-transition="slide" data-background="#b5533c" data-background-transition="zoom">
-                    <h2>Background Transitions</h2>
-                    <p>
-                        You can override background transitions per-slide.
-                    </p>
-                    <pre><code style="word-wrap: break-word;">&lt;section data-background-transition="zoom"&gt;</code></pre>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Controllers (2)
+
+```
+defmodule HelloPhoenix.PageController do
+  . . .
+
+  def test(conn, params) do
+    render conn, "index.html"
+  end
+end
+```
+
+                        * The second parameter `params` is a map which holds any parameters passed along in the HTTP request.
+                        * It is a good practice to pattern match against params in the function signature to provide data in a simple package we can pass on to rendering.
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Pretty Code</h2>
-                    <pre><code data-trim contenteditable>
-function linkify( selector ) {
-  if( supports3DTransforms ) {
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Controllers - Rendering plain text (3)
 
-    var nodes = document.querySelectorAll( selector );
+                        * Controllers have several ways of rendering content.
+                        * The simplest is to render some plain text using `text/2`.
+                        * Try the following:
+```
+    get "/hello/:messenger", HelloController, :show
+```
 
-    for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
-      var node = nodes[i];
-
-      if( !node.className ) {
-        node.className += ' roll';
-      }
-    }
-  }
-}
-                    </code></pre>
-                    <p>Code syntax highlighting courtesy of <a href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
+```
+    def show(conn, %{"message" => message}) do
+        text conn, "Your message is #{message}"
+    end
+```
+                        * You can also render JSON using `json/2`, where the second parameter is a map.
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Marvelous List</h2>
-                    <ul>
-                        <li>No order here</li>
-                        <li>Or here</li>
-                        <li>Or here</li>
-                        <li>Or here</li>
-                    </ul>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Controllers - Rendering html (4)
+
+                        * Phoenix controllers can also render HTML without a template.
+                        * To render html you have to use `html/2`.
+                        * Try the following:
+```
+def show(conn, %{"message" => message}) do
+    html conn, """
+    <html>
+        <head>
+            <title>Your message</title>
+        </head>
+        <body>
+            <p>You sent the message: #{message}</p>
+        </body>
+    </html>
+    """
+end
+```
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Fantastic Ordered List</h2>
-                    <ol>
-                        <li>One is smaller than...</li>
-                        <li>Two is smaller than...</li>
-                        <li>Three!</li>
-                    </ol>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Views (1)
+
+                        * Phoenix views have two main jobs:
+                            * Render templates 
+                            * Provide functions to be used in templates.
+                        * Phoenix assumes a strong naming convention from controllers to views to the templates they render. The `PageController` requires a `PageView` to render templates in the `web/templates/page` directory.
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Tabular Tables</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Value</th>
-                                <th>Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Apples</td>
-                                <td>$1</td>
-                                <td>7</td>
-                            </tr>
-                            <tr>
-                                <td>Lemonade</td>
-                                <td>$2</td>
-                                <td>18</td>
-                            </tr>
-                            <tr>
-                                <td>Bread</td>
-                                <td>$3</td>
-                                <td>2</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Templates (1)
+
+                        * Files into which we pass data to form complete HTTP responses. 
+                        * They are pre-compiled which makes them extremely fast.
+                        * EEx is the default template system in Phoenix, and it is quite similar to ERB in Ruby.
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Clever Quotes</h2>
-                    <p>
-                        These guys come in two forms, inline: <q cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-                        &ldquo;The nice thing about standards is that there are so many to choose from&rdquo;</q> and block:
-                    </p>
-                    <blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-                        &ldquo;For years there has been a theory that millions of monkeys typing at random on millions of typewriters would
-                        reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
-                    </blockquote>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab01: End to End (1)
+
+                        * Run:
+
+```
+$ mix phoenix.new info_phoenix  
+...
+Fetch and install dependencies? [Yn] Y
+```
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Intergalactic Interconnections</h2>
-                    <p>
-                        You can link between slides internally,
-                        <a href="#/2/3">like this</a>.
-                    </p>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab01: End to End (2)
+
+                        * Create a new file in `web/controllers/info_controller.ex`.
+                        
+```
+defmodule InfoPhoenix.InfoController do
+    use InfoPhoenix.Web, :controller
+
+    def index(conn, _params) do
+        render conn, "index.html", title: "Info"
+    end
+end
+```
+                        * And add the route mapping to `web/router.ex`
+
+```
+    get "/info", InfoController, :index
+```
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Speaker View</h2>
-                    <p>There's a <a href="https://github.com/hakimel/reveal.js#speaker-notes">speaker view</a>. It includes a timer, preview of the upcoming slide as well as your speaker notes.</p>
-                    <p>Press the <em>S</em> key to try it out.</p>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab01: End to End (3)
 
-                    <aside class="notes">
-                        Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
-                    </aside>
+                        * Create a new file in `web/view/info_view.ex`.
+                        
+```
+defmodule InfoPhoenix.InfoView do
+  use InfoPhoenix.Web, :view
+
+  def handler_info(conn) do
+    "Request Handled By: #{controller_module conn}.#{action_name conn}"
+  end
+end
+```
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Export to PDF</h2>
-                    <p>Presentations can be <a href="https://github.com/hakimel/reveal.js#pdf-export">exported to PDF</a>, here's an example:</p>
-                    <iframe src="//www.slideshare.net/slideshow/embed_code/42840540" width="445" height="355" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab01: End to End (3)
+
+                        * Create a new file in `web/templates/info/index.html.eex`.
+                        
+```
+<div class="jumbotron">
+  <h1><%= @title %></h1>
+  <p><%= handler_info @conn %></p>
+</div>
+```
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Global State</h2>
-                    <p>
-                        Set <code>data-state="something"</code> on a slide and <code>"something"</code>
-                        will be added as a class to the document element when the slide is open. This lets you
-                        apply broader style changes, like switching the page background.
-                    </p>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab01: End to End (3)
+
+                        * Run:
+                        
+```
+$ mix phoenix.server
+```
+                    </script>
                 </section>
 
-                <section data-state="customevent">
-                    <h2>State Events</h2>
-                    <p>
-                        Additionally custom events can be triggered on a per slide basis by binding to the <code>data-state</code> name.
-                    </p>
-                    <pre><code class="javascript" data-trim contenteditable style="font-size: 18px;">
-Reveal.addEventListener( 'customevent', function() {
-    console.log( '"customevent" has fired' );
-} );
-                    </code></pre>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab01: End to End (3)
+
+                        * Why is failing?
+
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Take a Moment</h2>
-                    <p>
-                        Press B or . on your keyboard to pause the presentation. This is helpful when you're on stage and want to take distracting slides off the screen.
-                    </p>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab01: End to End (3)
+
+                        * Modify the method `view` in `web/web.ex`:
+
+```
+  def view do
+    quote do
+      use Phoenix.View, root: "web/templates"
+
+      # Import convenience functions from controllers
+      import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1,
+                                        action_name: 1, controller_module: 1]
+
+      # Use all HTML functionality (forms, tags, etc)
+      use Phoenix.HTML
+
+      import InfoPhoenix.Router.Helpers
+      import InfoPhoenix.ErrorHelpers
+      import InfoPhoenix.Gettext
+    end
+  end
+```
+
+                    </script>
                 </section>
 
-                <section>
-                    <h2>Much more</h2>
-                    <ul>
-                        <li>Right-to-left support</li>
-                        <li><a href="https://github.com/hakimel/reveal.js#api">Extensive JavaScript API</a></li>
-                        <li><a href="https://github.com/hakimel/reveal.js#auto-sliding">Auto-progression</a></li>
-                        <li><a href="https://github.com/hakimel/reveal.js#parallax-background">Parallax backgrounds</a></li>
-                        <li><a href="https://github.com/hakimel/reveal.js#keyboard-bindings">Custom keyboard bindings</a></li>
-                    </ul>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab01: End to End (3)
+
+                        * Run:
+
+```
+$ mix phoenix.server
+```
+
+                        * Go to http://localhost:4000/info
+
+                    </script>
                 </section>
 
-                <section style="text-align: left;">
-                    <h1>THE END</h1>
-                    <p>
-                        - <a href="http://slides.com">Try the online editor</a> <br>
-                        - <a href="https://github.com/hakimel/reveal.js">Source code &amp; documentation</a>
-                    </p>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Controllers - Flash Messages
+
+                        * Flash messages exist to communicate with users during the course of an action.
+                        * The `Phoenix.Controller` module provides the `put_flash/3` and `get_flash/2` functions to help us set and retrieve flash messages as a key value pair.
+```
+defmodule HelloPhoenix.PageController do
+    # ...
+    def index(conn, _params) do
+        conn
+        |> put_flash(:info, "Welcome to Phoenix, from flash info!")
+        |> put_flash(:error, "Let's pretend we have an error.")
+        |> render("index.html")
+    end
+end
+```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Plug (1)
+
+                        * Plug is:
+                            * A specification for composable modules between web applications
+                            * Connection adapters for different web servers in the Erlang VM
+                        * There are two kinds of plugs: module plugs and function plugs
+                        * A function plug is a single function.
+                        * A module plug is a module that provides two functions with some configuration details.
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Plug - Module plugs (2)
+
+                        * Usually to a share plug across more than one module
+                        * Plug specification:
+                            * two functions `init` and `call`
+                        * `init` happens at compilation time
+                        * `call` happens at runtime
+                        * Plug will use the result of `init` as a second argumento to `call`
+                        * `conn` is `Plug.Conn`
+```
+defmodule NothingPlug do
+    def init(opts) do
+        opts
+    end
+    def call(conn, _opts) do
+        conn
+    end
+end
+```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Plug - Function plugs (3)
+
+                        * Plug specification:
+                            * a function that receives a `conn` and some options
+                        * `conn` is `Plug.Conn`
+```
+    def some_function(conn, opts) do
+        # ...
+        conn
+    end
+```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab02: Plugs (1)
+
+                        * Go to `/labs/plug_test`
+                        * Run:
+
+```
+$ mix phoenix.server
+```
+
+                        * Go to http://localhost:4000
+
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab02: Plugs (2)
+
+                        * Go to `web/router.ex`
+                        * Uncomment:
+
+```
+    #plug PlugTest.Plug
+```
+
+                        * Go to http://localhost:4000
+                        * What happened?
+                        * Go to http://localhost:4000/?passkey=ok
+                        * Comment again:
+
+```
+    plug PlugTest.Plug
+```
+
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab02: Plugs (3)
+
+                        * Go to `web/controllers/page_controller.ex`
+                        * Uncomment:
+
+```
+    #plug :function_plug when action in [:test]
+```
+
+                        * Go to http://localhost:4000
+                        * What happened?
+                        * Go to http://localhost:4000/?passkey=ok
+
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Lab03: Blog Phoenix (1)
+
+                        * Go to `/labs/blog_phoenix`
+                        * Run:
+
+```
+$ mix phoenix.server
+```
+
+                        * Go to http://localhost:4000/blogs
+
+                    </script>
                 </section>
 
             </div>

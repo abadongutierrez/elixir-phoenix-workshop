@@ -1,0 +1,9 @@
+<h2>Edit post</h2>
+
+<%= render "form.html",
+    action: post_path(@conn, :update, @post),
+    method: "put", 
+    post: @post,
+    conn: @conn %>
+
+<%= link "Back", to: post_path(@conn, :index) %>

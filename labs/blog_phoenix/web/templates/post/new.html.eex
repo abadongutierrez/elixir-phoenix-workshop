@@ -1,0 +1,8 @@
+<h2>New post</h2>
+
+<%= render "form.html",
+    action: post_path(@conn, :create),
+    method: "post",
+    conn: @conn %>
+
+<%= link "Back", to: post_path(@conn, :index) %>
