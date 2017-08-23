@@ -140,7 +140,9 @@ connection
                         * Run:
 
 ```
-$ mix phoenix.new hello_phoenix  
+$ mix phoenix.new hello_phoenix 
+OR
+$ mix phx.new hello_phoenix 
 ...
 Fetch and install dependencies? [Yn] Y
 ```
@@ -648,9 +650,19 @@ $ mix phoenix.server
     #plug :function_plug when action in [:test]
 ```
 
-                        * Go to http://localhost:4000
+                        * Go to http://localhost:4000/test
                         * What happened?
-                        * Go to http://localhost:4000/?passkey=ok
+                        * Go to http://localhost:4000/test?passkey=ok
+
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Mix Tasks
+
+                        * `mix help | grep -i phx`
+                        * `mix help | grep -i phoenix`
 
                     </script>
                 </section>
@@ -668,6 +680,18 @@ $ mix phoenix.server
 
                         * Go to http://localhost:4000/blogs
 
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Contexts (1)
+
+                        * Contexts are dedicated modules that expose and group related functionality.
+                        * A context will group related functionality, such as posts and comments, often encapsulating patterns such as data access and data validation.
+                        * By using contexts, we decouple and isolate our systems into manageable, independent parts.
+                        * https://hexdocs.pm/phoenix/ecto.html
+                        * https://hexdocs.pm/phoenix/contexts.html#content
                     </script>
                 </section>
 

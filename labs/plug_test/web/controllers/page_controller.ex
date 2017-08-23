@@ -8,7 +8,7 @@ defmodule PlugTest.PageController do
   end
 
   def test(conn, _params) do
-    text conn, "This is a test"
+    text conn, "This is a test!"
   end
 
   defp function_plug(conn, _options) do
